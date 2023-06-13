@@ -4,9 +4,9 @@ from django.db import models
 class Event(models.Model):
     title = models.CharField(max_length=100)
     location = models.CharField(max_length=100)
-    description = models.CharField(max_length=100)
-    start_time = models.DateTimeField(auto_now_add=True)
-    end_time = models.DateTimeField(auto_now_add=True)
+    description = models.CharField(max_length=100, default='')
+    start_time = models.CharField(max_length=100)
+    end_time = models.CharField(max_length=100)
 
     def create_event(self):
         return {
@@ -14,11 +14,11 @@ class Event(models.Model):
             'location': self.location,
             'description': self.description,
             'start': {
-                'dateTime': self.start_time,
+                'dateTime': str(self.start_time),
                 'timeZone': 'Asia/Shanghai',
             },
             'end': {
-                'dateTime': self.end_time,
+                'dateTime': str(self.end_time),
                 'timeZone': 'Asia/Shanghai',
             },
             'reminders': {

@@ -9,6 +9,8 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
+from .models import Event
+
 def index(request):
     return HttpResponse("Hello, world. You're at the polls index.")
 
@@ -82,24 +84,18 @@ def create_event(request):
 
     service = build('calendar', 'v3', credentials=creds)
 
-    event = {
-        'summary': '测试事件',
-        'location': '北京',
-        'description': '这是一个测试事件',
-        'start': {
-            'dateTime': '2023-06-10T09:00:00',
-            'timeZone': 'Asia/Shanghai',
-        },
-        'end': {
-            'dateTime': '2023-06-10T10:00:00',
-            'timeZone': 'Asia/Shanghai',
-        },
-        'reminders': {
-            'useDefault': True,
-        },
+    attr = {
+        'title': 'happy friday',
+        'location': 'night club',
+        'description': 'lets go party',
+        'start_time': '2023-06-17T16:00:00',
+        'end_time': '2023-06-17T20:00:00'
     }
 
-    event = service.events().insert(calendarId='primary', body=event).execute()
+    event = Event(**attr)
+    event.save()
+    event = service.events().insert(calendarId='primary', body=event.create_event()).execute()
 
     print('Event created: %s' % event.get('htmlLink'))
+    return HttpResponse("Successful created")
 
