@@ -1,4 +1,5 @@
 from django.http import HttpResponse
+from django.views.decorators.csrf import csrf_exempt
 
 import datetime
 import os.path
@@ -16,7 +17,7 @@ def index(request):
 
 def list_all(request):
     # If modifying these scopes, delete the file token.json.
-    SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
+    SCOPES = ['https://www.googleapis.com/auth/calendar']
 
     """Shows basic usage of the Google Calendar API.
     Prints the start and name of the next 10 events on the user's calendar.
@@ -64,7 +65,11 @@ def list_all(request):
 
     return HttpResponse("Hello, world. You're at the polls index.")
 
+@csrf_exempt
 def create_event(request):
+    if request.method != 'POST':
+        return HttpResponse("Method not allow")
+
     SCOPES = ['https://www.googleapis.com/auth/calendar']
 
     creds = None
@@ -84,13 +89,7 @@ def create_event(request):
 
     service = build('calendar', 'v3', credentials=creds)
 
-    attr = {
-        'title': 'happy friday',
-        'location': 'night club',
-        'description': 'lets go party',
-        'start_time': '2023-06-17T16:00:00',
-        'end_time': '2023-06-17T20:00:00'
-    }
+    attr = request.POST.dict()
 
     event = Event(**attr)
     event.save()
