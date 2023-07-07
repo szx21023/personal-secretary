@@ -11,35 +11,13 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 from .models import Event
+from .utils import generate_calendar_credential
 
 def index(request):
     return HttpResponse("Hello, world. You're at the polls index.")
 
 def list_all(request):
-    # If modifying these scopes, delete the file token.json.
-    SCOPES = ['https://www.googleapis.com/auth/calendar']
-
-    """Shows basic usage of the Google Calendar API.
-    Prints the start and name of the next 10 events on the user's calendar.
-    """
-    creds = None
-    # The file token.json stores the user's access and refresh tokens, and is
-    # created automatically when the authorization flow completes for the first
-    # time.
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-    # If there are no (valid) credentials available, let the user log in.
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
-
-        # Save the credentials for the next run
-        with open('token.json', 'w') as token:
-            token.write(creds.to_json())
+    creds = generate_calendar_credential()
     try:
         service = build('calendar', 'v3', credentials=creds)
 
@@ -70,23 +48,7 @@ def create_event(request):
     if request.method != 'POST':
         return HttpResponse("Method not allow")
 
-    SCOPES = ['https://www.googleapis.com/auth/calendar']
-
-    creds = None
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
-
-        with open('token.json', 'w') as token:
-            token.write(creds.to_json())
-
+    creds = generate_calendar_credential()
     service = build('calendar', 'v3', credentials=creds)
 
     attr = request.POST.dict()
